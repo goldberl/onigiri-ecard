@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML E-Card Template With Wacky CSS</title>
+
+    <style>
+        /* =========================
+        GLOBAL SIZE CONTROLS
+        ========================= */
+
+        :root {
+            --scale: 0.80;
+
+            /* layout */
+            --envelope-width: calc(700px * var(--scale));
+            --envelope-height: calc(350px * var(--scale));
+            --page-width: calc(700px * var(--scale));
+
+            --border-thickness: calc(8px * var(--scale));
+            --padding: calc(30px * var(--scale));
+
+            /* typography */
+            --font-small: calc(14px * var(--scale));
+            --font-body: calc(16px * var(--scale));
+            --font-heading: calc(22px * var(--scale));
+            --font-title: calc(26px * var(--scale));
+
+            --stamp-size: calc(60px * var(--scale));
+
+            /* buttons */
+            --btn-padding-y: calc(10px * var(--scale));
+            --btn-padding-x: calc(22px * var(--scale));
+            --btn-gap: calc(12px * var(--scale));
+
+            /* positioning */
+            --letter-top: calc(420px * var(--scale));
+            --lift-letter: calc(-350px * var(--scale));
+            --lift-page: calc(-250px * var(--scale));
+        }
+
+        /* =========================
+        BASE
+        ========================= */
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #fff9ed;
+
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+
+            overflow-x: hidden;
+            overflow-y: clip;
+
+            padding-top: calc(100px * var(--scale));
+        }
+
+        #app {
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        /* =========================
+        ENVELOPE
+        ========================= */
+
+        #envelope-container {
+            position: relative;
+        }
+
+        #envelope {
+            position: relative;
+            width: var(--envelope-width);
+            height: var(--envelope-height);
+
+            background-color: #f5d7a1;
+            border: var(--border-thickness) solid #444;
+            border-radius: 5px;
+
+            display: inline-block;
+            transition: transform 1.2s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            z-index: 2;
+
+            transform-origin: center;
+        }
+
+        #envelope:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #envelope.open {
+            transform: rotateY(180deg);
+        }
+
+        #envelope.open:hover {
+            transform: rotateY(180deg) scale(1.05);
+        }
+
+        #sender {
+            position: absolute;
+            top: calc(20px * var(--scale));
+            left: calc(20px * var(--scale));
+            font-size: var(--font-body);
+            color: #333;
+            transition: opacity 0.5s ease;
+            text-align: left;
+        }
+
+        #recipient {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: var(--font-heading);
+            color: #333;
+            transition: opacity 0.5s ease;
+            text-align: left;
+        }
+
+        #stamp {
+            position: absolute;
+            top: calc(20px * var(--scale));
+            right: calc(20px * var(--scale));
+            font-size: var(--stamp-size);
+        }
+
+        .hide-text {
+            opacity: 0;
+        }
+
+        /* =========================
+        BUTTONS
+        ========================= */
+
+        .content-buttons {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: var(--btn-gap);
+            margin-top: calc(20px * var(--scale));
+        }
+
+        .fixed-buttons {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+        }
+
+        button {
+            padding: var(--btn-padding-y) var(--btn-padding-x);
+            border: none;
+            border-radius: 6px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            font-size: var(--font-body);
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        /* =========================
+        PAGES
+        ========================= */
+
+        #letter,
+        #page {
+            display: none;
+            position: absolute;
+
+            left: 50%;
+            top: var(--letter-top);
+
+            transform: translateX(-50%);
+
+            width: var(--page-width);
+
+            background: white;
+            border: var(--border-thickness) solid #444;
+            padding: var(--padding);
+            box-sizing: border-box;
+
+            opacity: 0;
+            transition: transform 1.2s ease, opacity 1.2s ease;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        #letter {
+            min-height: calc(400px * var(--scale));
+            z-index: 3;
+        }
+
+        #page {
+            min-height: calc(400px * var(--scale));
+            z-index: 4;
+            text-align: left;
+        }
+
+        #letter:not(.open),
+        #page:not(.open) {
+            pointer-events: none;
+        }
+
+        #letter.open,
+        #page.open {
+            pointer-events: auto;
+        }
+
+        #letter.open {
+            transform: translateX(-50%) translateY(var(--lift-letter));
+            opacity: 1;
+        }
+
+        #page.open {
+            transform: translateX(-50%) translateY(var(--lift-page));
+            opacity: 1;
+        }
+
+        /* =========================
+        TEXT
+        ========================= */
+
+        h1 {
+            font-size: var(--font-title);
+            color: #222;
+        }
+
+        h2 {
+            font-size: var(--font-heading);
+            color: #222;
+        }
+
+        p {
+            font-size: var(--font-body);
+            color: #222;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .btn-container {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+
+        <div id="envelope-container">
+
+            <div id="envelope" onclick="openEnvelope()">
+
+                <div id="sender">
+                    goldberl<br>
+                    270526 GitHub St.<br>
+                    Internet, Earth 00000
+                </div>
+
+                <div id="stamp">📬</div>
+
+                <div id="recipient">
+                    Valued Recipient<br>
+                    127.0.0.1 Local Host Way<br>
+                    Cyberspace, Earth 11111
+                </div>
+
+            </div>
+
+            <div id="letter">
+
+                <p class="text-right">XX Month 20XX</p>
+
+                <h1 class="text-left">Card Title</h1>
+
+                <p class="text-left">
+                    Replace this text with your custom message...
+                </p>
+
+                <div class="fixed-buttons">
+                    <button onclick="nextPage()">Next Page</button>
+                    <button onclick="closeEnvelope()">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="page">
+
+            <h2>Additional Page</h2>
+
+            <p>
+                Add more content here such as images, quotes, event details...
+            </p>
+
+            <div class="fixed-buttons">
+                <button onclick="backPage()">Back</button>
+                <button onclick="closeEnvelope()">Close</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function openEnvelope() {
+            document.getElementById("envelope").classList.add("open");
+            document.getElementById("letter").style.display = "block";
+
+            setTimeout(() => {
+                document.getElementById("letter").classList.add("open");
+            }, 200);
+
+            document.getElementById("openBtn").style.display = "none";
+            document.getElementById("closeBtn").style.display = "inline-block";
+        }
+
+        function nextPage() {
+            const page = document.getElementById("page");
+            page.style.display = "block";
+
+            setTimeout(() => page.classList.add("open"), 200);
+        }
+
+        function backPage() {
+            const page = document.getElementById("page");
+            page.classList.remove("open");
+
+            setTimeout(() => page.style.display = "none", 800);
+        }
+
+        function closeEnvelope() {
+            document.getElementById("envelope").classList.remove("open");
+
+            document.getElementById("letter").classList.remove("open");
+            document.getElementById("page").classList.remove("open");
+
+            setTimeout(() => {
+                document.getElementById("letter").style.display = "none";
+                document.getElementById("page").style.display = "none";
+            }, 800);
+
+            document.getElementById("openBtn").style.display = "inline-block";
+            document.getElementById("closeBtn").style.display = "none";
+        }
+    </script>
+
+</body>
+
+</html>
