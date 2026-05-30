@@ -2,9 +2,44 @@
 <html lang="en">
 
 <head>
+    <script>
+        // ENVELOPE ADDRESSES (use <br> for line breaks)
+        const SENDER_ADDRESS = `Onigiri Productions<br>
+                                270526 GitHub St.<br>
+                                Internet, Earth 00000`;
+
+        const RECIPIENT_ADDRESS = `Valued Recipient<br>
+                                   127.0.0.1 Local Host Way<br>
+                                   Cyberspace, Earth 11111`;
+
+        // PAGE DATA (Add, remove, or modify objects to change pages)
+        const PAGES_DATA = [
+            {
+                // First page
+                type: "cover",
+                date: "XX Month 20XX",
+                title: "Card Title",
+                content: "Replace this text with your custom message..."
+            },
+            {
+                // Additional page
+                type: "standard",
+                title: "Additional Page",
+                content: "Add more content here such as images, quotes, event details..."
+            },
+            {
+                // final page
+                type: "onigiri-productions",
+                title: "Brought to you by...",
+                content: "ONIGIRI PRODUCTIONS 🍙",
+                link: "https://github.com/goldberl/ecard"
+            }
+        ];
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HTML E-Card Template With Wacky CSS</title>
+    <title>Onigiri Productions HTML E-Card Template With Wacky CSS</title>
 
     <style>
         /* =========================
@@ -156,6 +191,8 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
+            display: flex;
+            gap: var(--btn-gap);
         }
 
         button {
@@ -169,15 +206,14 @@
         }
 
         button:hover {
-            background: #333;
+            background: #f14848;
         }
 
         /* =========================
         PAGES
         ========================= */
 
-        #letter,
-        #page {
+        .card-page {
             display: none;
             position: absolute;
 
@@ -185,7 +221,6 @@
             top: var(--letter-top);
 
             transform: translateX(-50%);
-
             width: var(--page-width);
 
             background: white;
@@ -196,40 +231,89 @@
             opacity: 0;
             transition: transform 1.2s ease, opacity 1.2s ease;
 
-            display: flex;
             flex-direction: column;
+            min-height: calc(400px * var(--scale));
         }
 
-        #letter {
-            min-height: calc(400px * var(--scale));
+        .card-page[data-index="0"] {
             z-index: 3;
         }
 
-        #page {
-            min-height: calc(400px * var(--scale));
+        .card-page:not([data-index="0"]) {
             z-index: 4;
             text-align: left;
         }
 
-        #letter:not(.open),
-        #page:not(.open) {
+        .card-page:not(.open) {
             pointer-events: none;
         }
 
-        #letter.open,
-        #page.open {
+        .card-page.open {
             pointer-events: auto;
+            opacity: 1;
         }
 
-        #letter.open {
+        .card-page[data-index="0"].open {
             transform: translateX(-50%) translateY(var(--lift-letter));
-            opacity: 1;
         }
 
-        #page.open {
+        .card-page:not([data-index="0"]).open {
             transform: translateX(-50%) translateY(var(--lift-page));
-            opacity: 1;
         }
+
+        /* =========================
+        ONIGIRI PRODUCTIONS STYLES
+        ========================= */
+
+        .card-page.onigiri-productions-page {
+            text-align: center !important;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            border-color: #222;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .card-page.onigiri-productions-page h2 {
+            font-size: var(--font-body);
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            font-weight: bolder;
+        }
+
+        .card-page.onigiri-productions-page .production-logo {
+            font-size: calc(30px * var(--scale));
+            color: #000000;
+            font-weight: bolder;
+            letter-spacing: 4px;
+            margin: 15px 0 5px 0;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.35);
+        }
+
+        .card-page.onigiri-productions-page .production-link {
+            font-size: var(--font-small);
+            margin-bottom: 25px;
+        }
+
+        .card-page.onigiri-productions-page .production-link a {
+            color: #f0224b;
+            text-decoration: none;
+            font-weight: bolder;
+        }
+
+        .card-page.onigiri-productions-page .production-link a:hover {
+            text-decoration: underline;
+        }
+
+        .card-page.onigiri-productions-page .production-copyright {
+            font-size: var(--font-body);
+            color: #000000;
+            letter-spacing: 1px;
+            font-weight: bolder;
+        }
+
 
         /* =========================
         TEXT
@@ -274,100 +358,131 @@
         <div id="envelope-container">
 
             <div id="envelope" onclick="openEnvelope()">
-
-                <div id="sender">
-                    goldberl<br>
-                    270526 GitHub St.<br>
-                    Internet, Earth 00000
-                </div>
-
+                <div id="sender"></div>
                 <div id="stamp">📬</div>
-
-                <div id="recipient">
-                    Valued Recipient<br>
-                    127.0.0.1 Local Host Way<br>
-                    Cyberspace, Earth 11111
-                </div>
-
+                <div id="recipient"></div>
             </div>
 
-            <div id="letter">
-
-                <p class="text-right">XX Month 20XX</p>
-
-                <h1 class="text-left">Card Title</h1>
-
-                <p class="text-left">
-                    Replace this text with your custom message...
-                </p>
-
-                <div class="fixed-buttons">
-                    <button onclick="nextPage()">Next Page</button>
-                    <button onclick="closeEnvelope()">Close</button>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div id="page">
-
-            <h2>Additional Page</h2>
-
-            <p>
-                Add more content here such as images, quotes, event details...
-            </p>
-
-            <div class="fixed-buttons">
-                <button onclick="backPage()">Back</button>
-                <button onclick="closeEnvelope()">Close</button>
-            </div>
+            <div id="pages-placeholder"></div>
 
         </div>
 
     </div>
 
     <script>
+        const NUM_PAGES = PAGES_DATA.length;
+        let currentPageIndex = 0;
+
+        function initApp() {
+            // Inject envelope details
+            document.getElementById("sender").innerHTML = SENDER_ADDRESS;
+            document.getElementById("recipient").innerHTML = RECIPIENT_ADDRESS;
+
+            // Build out the dynamic pages
+            const container = document.getElementById("pages-placeholder");
+            container.innerHTML = "";
+
+            PAGES_DATA.forEach((page, index) => {
+                const pageDiv = document.createElement("div");
+                pageDiv.className = "card-page";
+                pageDiv.id = `page-${index}`;
+                pageDiv.setAttribute("data-index", index);
+
+                // Check for the renamed page type identifier
+                if (page.type === "onigiri-productions") {
+                    pageDiv.classList.add("onigiri-productions-page");
+                }
+
+                let innerHTML = "";
+                if (page.type === "cover") {
+                    innerHTML += `<p class="text-right">${page.date || ""}</p>`;
+                    innerHTML += `<h1 class="text-left">${page.title}</h1>`;
+                    innerHTML += `<p class="text-left">${page.content}</p>`;
+                } else if (page.type === "onigiri-productions") {
+                    // Custom layout construction for the new text lines
+                    const currentYear = new Date().getFullYear();
+                    innerHTML += `<h2>${page.title}</h2>`;
+                    innerHTML += `<div class="production-logo">${page.content}</div>`;
+                    if (page.link) {
+                        innerHTML += `<div class="production-link"><a href="${page.link}" target="_blank">${page.link}</a></div>`;
+                    }
+                    innerHTML += `<div class="production-copyright">&copy; ${currentYear}</div>`;
+                } else {
+                    innerHTML += `<h2>${page.title}</h2>`;
+                    innerHTML += `<p>${page.content}</p>`;
+                }
+
+                innerHTML += `<div class="fixed-buttons">`;
+                if (index > 0) {
+                    innerHTML += `<button onclick="backPage()">Back</button>`;
+                }
+                if (index < NUM_PAGES - 1) {
+                    innerHTML += `<button onclick="nextPage()">Next</button>`;
+                }
+                if (index === NUM_PAGES - 1) {
+                    innerHTML += `<button onclick="closeEnvelope()">Close</button>`;
+                }
+                innerHTML += `</div>`;
+
+                pageDiv.innerHTML = innerHTML;
+                container.appendChild(pageDiv);
+            });
+        }
+
         function openEnvelope() {
             document.getElementById("envelope").classList.add("open");
-            document.getElementById("letter").style.display = "block";
+
+            currentPageIndex = 0;
+            const firstPage = document.getElementById(`page-${currentPageIndex}`);
+            if (!firstPage) return;
+
+            firstPage.style.display = "flex";
 
             setTimeout(() => {
-                document.getElementById("letter").classList.add("open");
+                firstPage.classList.add("open");
             }, 200);
-
-            document.getElementById("openBtn").style.display = "none";
-            document.getElementById("closeBtn").style.display = "inline-block";
         }
 
         function nextPage() {
-            const page = document.getElementById("page");
-            page.style.display = "block";
+            if (currentPageIndex >= NUM_PAGES - 1) return;
 
-            setTimeout(() => page.classList.add("open"), 200);
+            currentPageIndex++;
+            const nextPageEl = document.getElementById(`page-${currentPageIndex}`);
+            nextPageEl.style.display = "flex";
+
+            setTimeout(() => nextPageEl.classList.add("open"), 200);
         }
 
         function backPage() {
-            const page = document.getElementById("page");
-            page.classList.remove("open");
+            if (currentPageIndex <= 0) return;
 
-            setTimeout(() => page.style.display = "none", 800);
+            const activePageEl = document.getElementById(`page-${currentPageIndex}`);
+            activePageEl.classList.remove("open");
+
+            setTimeout(() => {
+                activePageEl.style.display = "none";
+            }, 800);
+
+            currentPageIndex--;
         }
 
         function closeEnvelope() {
             document.getElementById("envelope").classList.remove("open");
 
-            document.getElementById("letter").classList.remove("open");
-            document.getElementById("page").classList.remove("open");
-
-            setTimeout(() => {
-                document.getElementById("letter").style.display = "none";
-                document.getElementById("page").style.display = "none";
-            }, 800);
-
-            document.getElementById("openBtn").style.display = "inline-block";
-            document.getElementById("closeBtn").style.display = "none";
+            for (let i = 0; i < NUM_PAGES; i++) {
+                const pageEl = document.getElementById(`page-${i}`);
+                if (pageEl) {
+                    pageEl.classList.remove("open");
+                    setTimeout(() => {
+                        pageEl.style.display = "none";
+                    }, 800);
+                }
+            }
+            currentPageIndex = 0;
         }
+
+        // Fire everything up on launch
+        initApp();
     </script>
 
 </body>
