@@ -12,7 +12,7 @@ A simple, lightweight interactive 3D e-card template built with pure HTML, CSS, 
 ### 🚀 How to Customize
 Open `index.html` in any text editor to modify the card:
 
-1. Resize the Card
+#### Resize the Card
 Change the size of the entire project uniformly by adjusting the `--scale` value in the CSS:
 
 ```
@@ -21,14 +21,14 @@ Change the size of the entire project uniformly by adjusting the `--scale` value
 }
 ```
 
-2. Edit the Content
+#### Edit the Content
 Update the text variables at the top of the `<script>` tag.
 
 ```
 const PAGE_1_CONTENT = `Write your message here.`
 ```
 
-3. Add or Remove Pages
+#### Add or Remove Pages
 Add or duplicate objects inside the `PAGES_DATA` array to expand your card. The layout engine will handle the 3D book math automatically:
 
 ```
@@ -42,4 +42,4 @@ Add or duplicate objects inside the `PAGES_DATA` array to expand your card. The 
 ```
 
 ### 📄 License
-MIT License. Free to use and modify for any personal or commercial greetings!
+MIT License. Free to use and modify for any personal or commercial greetings.
