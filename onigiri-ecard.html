@@ -79,7 +79,7 @@ Happy writing!
                 // Back cover
                 type: "onigiri-productions",
                 title: "Brought to you by",
-                content: "ONIGIRI PRODUCTIONS<br><span class=\"back-emoji\">🍙</span>",
+                content: '<a href="https://onigiri-productions.vercel.app/" target="_blank" rel="noopener noreferrer" class="onigiri-link">ONIGIRI PRODUCTIONS</a><br><span class="back-emoji">🍙</span>',
                 link: "https://github.com/goldberl/onigiri-ecard"
             }
         ];
@@ -288,6 +288,17 @@ Happy writing!
             font-size: calc(55px * var(--scale));
             margin-top: calc(10px * var(--scale));
             margin-bottom: calc(10px * var(--scale));
+        }
+
+        .onigiri-link {
+            color: #2a0147;
+            /* dark purple */
+            text-decoration: none;
+            transition: text-decoration 0.2s ease;
+        }
+
+        .onigiri-link:hover {
+            text-decoration: underline;
         }
 
         /* =======================================
