@@ -143,6 +143,37 @@ Happy writing!
         }
 
         /* =========================
+        PRINT BUTTON (Screen UI)
+        ========================= */
+        #print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #ffffff;
+            color: #222;
+            border: 3px solid #444;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+
+        #print-btn:hover {
+            transform: translateY(-2px);
+            background: #fffdf7;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+        }
+
+        #print-btn:active {
+            transform: translateY(0);
+        }
+
+        /* =========================
         ENVELOPE BACKGROUND
         ========================= */
         #envelope {
@@ -439,10 +470,119 @@ Happy writing!
         .text-right {
             text-align: right;
         }
+
+        /* =======================================
+        PRINT CONTAINER (Hidden on screen)
+        ======================================= */
+        #print-container {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0.4in;
+            }
+
+            :root {
+                /* Normalized print scale so the 2-page spread fits cleanly on landscape paper */
+                --scale: 0.85;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: #ffffff !important;
+                display: block !important;
+                overflow: visible !important;
+                min-height: auto !important;
+            }
+
+            /* Hide interactive screen UI */
+            #app,
+            #print-btn {
+                display: none !important;
+            }
+
+            /* Show flat foldable spreads */
+            #print-container {
+                display: block !important;
+                width: 100%;
+            }
+
+            .print-sheet {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 92vh;
+                page-break-after: always;
+                break-after: page;
+            }
+
+            .print-sheet:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+
+            .print-spread {
+                display: flex;
+                flex-direction: row;
+                width: calc(var(--page-width) * 2);
+                height: var(--page-height);
+                position: relative;
+            }
+
+            /* Dashed fold line down the middle of each spread */
+            .print-spread::after {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 0;
+                bottom: 0;
+                border-left: 2px dashed rgba(0, 0, 0, 0.25);
+                pointer-events: none;
+                z-index: 20;
+            }
+
+            .print-panel {
+                position: relative !important;
+                width: var(--page-width) !important;
+                height: var(--page-height) !important;
+                background: #ffffff !important;
+                border: var(--border-thickness) solid #444 !important;
+                padding: var(--padding) !important;
+                box-sizing: border-box !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                transform: none !important;
+                cursor: default !important;
+            }
+
+            /* Remove inner double-border along the center fold */
+            .print-panel.left-panel {
+                border-right: none !important;
+            }
+
+            .print-panel.right-panel {
+                border-left: none !important;
+            }
+
+            /* Hide hover corner curls in print */
+            .print-panel::after {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
 <body>
+
+    <button id="print-btn" onclick="printCard()" title="Print foldable card">🖨️ Print E-Card</button>
 
     <div id="app">
 
@@ -458,18 +598,15 @@ Happy writing!
 
     </div>
 
+    <!-- Dedicated flat print layout populated dynamically from PAGES_DATA -->
+    <div id="print-container"></div>
+
     <script>
         let leafCount = 0;
         let currentLeafIndex = 0;
         let isBookOpen = false;
 
-        function initApp() {
-            document.getElementById("sender").innerHTML = SENDER_ADDRESS;
-            document.getElementById("recipient").innerHTML = RECIPIENT_ADDRESS;
-
-            const container = document.getElementById("leaves-container");
-            container.innerHTML = "";
-
+        function buildLeafPairs() {
             const prodPageData = PAGES_DATA.find(p => p.type === 'onigiri-productions');
             const contentPages = PAGES_DATA.filter(p => p.type !== 'onigiri-productions');
 
@@ -497,6 +634,17 @@ Happy writing!
                 lastPair.back = prodPageData;
             }
 
+            return leafDataPairs;
+        }
+
+        function initApp() {
+            document.getElementById("sender").innerHTML = SENDER_ADDRESS;
+            document.getElementById("recipient").innerHTML = RECIPIENT_ADDRESS;
+
+            const container = document.getElementById("leaves-container");
+            container.innerHTML = "";
+
+            const leafDataPairs = buildLeafPairs();
             leafCount = leafDataPairs.length;
 
             leafDataPairs.forEach((pair, index) => {
@@ -517,8 +665,53 @@ Happy writing!
                 container.appendChild(leafDiv);
             });
 
+            renderPrintLayout(leafDataPairs);
             updateHoverTargets();
         }
+
+        function renderPrintLayout(leafDataPairs) {
+            const printContainer = document.getElementById("print-container");
+            printContainer.innerHTML = "";
+
+            // Sheet 1 (Outside Spread): Back Cover on Left | Front Cover on Right
+            const outerLeft = leafDataPairs[leafDataPairs.length - 1].back;
+            const outerRight = leafDataPairs[0].front;
+            printContainer.appendChild(createPrintSheet(outerLeft, outerRight));
+
+            // Subsequent Sheets (Inside Spreads): Leaf[i].back on Left | Leaf[i+1].front on Right
+            for (let i = 0; i < leafDataPairs.length - 1; i++) {
+                const insideLeft = leafDataPairs[i].back;
+                const insideRight = leafDataPairs[i + 1].front;
+                printContainer.appendChild(createPrintSheet(insideLeft, insideRight));
+            }
+        }
+
+        function createPrintSheet(leftPage, rightPage) {
+            const sheet = document.createElement("div");
+            sheet.className = "print-sheet";
+
+            const spread = document.createElement("div");
+            spread.className = "print-spread";
+
+            const leftPanel = document.createElement("div");
+            leftPanel.className = "print-panel left-panel";
+            if (leftPage) leftPanel.innerHTML = renderPageContent(leftPage);
+
+            const rightPanel = document.createElement("div");
+            rightPanel.className = "print-panel right-panel";
+            if (rightPage) rightPanel.innerHTML = renderPageContent(rightPage);
+
+            spread.appendChild(leftPanel);
+            spread.appendChild(rightPanel);
+            sheet.appendChild(spread);
+
+            return sheet;
+        }
+
+        function printCard() {
+            window.print();
+        }
+
         function renderPageContent(page) {
             if (page.type === "cover") {
                 return `<div class="cover-page">
