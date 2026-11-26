@@ -109,6 +109,12 @@ Happy writing!
             --border-thickness: calc(8px * var(--scale));
             --padding: calc(35px * var(--scale));
 
+            /* front cover inner border controls */
+            --cover-border-thickness: calc(10px * var(--scale));
+            --cover-border-type: double;
+            /* e.g., solid, dashed, dotted, double */
+            --cover-border-color: #cb0029;
+
             /* typography scaling */
             --font-small: calc(14px * var(--scale));
             --font-body: calc(18px * var(--scale));
@@ -252,6 +258,20 @@ Happy writing!
             opacity: 1;
             transform: translateY(0);
             pointer-events: auto;
+        }
+
+        .cover-page {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: var(--cover-border-thickness) var(--cover-border-type) var(--cover-border-color);
+            border-radius: calc(8px * var(--scale));
+            padding: calc(15px * var(--scale));
+            display: flex;
+            flex-direction: column;
         }
 
         .cover-page .cover-emoji {
